@@ -1,8 +1,8 @@
 # DynmapArea
 
-    This is a plugin for KuroBase.
+    This is for KuroBase.
 
-This can check protections on dynmap web.
+You can check protections(by /area command) on dynmap web.
 
 ![image](https://cldup.com/QY2EtcCu5F.png)
 
