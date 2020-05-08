@@ -1,0 +1,9 @@
+name: DynmapArea
+version: 1.0.0
+author: bei2
+main: com.gmx.mattcha.dynmaparea.MainClass
+api-version: 1.14
+
+depend:
+  - KuroBase
+  - dynmap

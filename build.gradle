@@ -1,0 +1,41 @@
+apply plugin: 'java'
+
+group 'com.gmx.mattcha'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+def out = project.hasProperty('out') ? project.out : './dist'
+
+jar.archiveFileName = name + ".jar"
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+    }
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    flatDir {
+        dirs "lib"
+    }
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT"
+    implementation name: 'KuroBase'
+    implementation name: 'DynmapCoreAPI-3.0-SNAPSHOT'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+/* put jar files to dist after building */
+build.doLast {
+    copy {
+        from jar.archiveFile
+        into out
+    }
+}
