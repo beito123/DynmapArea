@@ -1,10 +1,12 @@
 # Config file
 
+badhack.world: world
 markerset.name: 土地表示
+markerset.check-interval: 300
 marker.description: "\
-  %1の土地 ( %0 )</br></br>\
-  名前: %0</br>\
-  所有者: %1</br>\
+  %1の土地 ( %0 )<br><br>\
+  名前: %0<br>\
+  所有者: %1<br>\
   範囲: (x: %2 ～ %5, y: %3 ～ %6, z: %4 ～ %7)"
 marker.colors:
   - "f44336"

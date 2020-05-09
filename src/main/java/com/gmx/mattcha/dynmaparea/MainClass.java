@@ -1,8 +1,10 @@
 package com.gmx.mattcha.dynmaparea;
 
+import com.gmx.mattcha.dynmaparea.task.CheckTask;
 import com.gmx.mattcha.dynmaparea.util.BaseCustomMessage;
 import host.kuro.kurobase.KuroBase;
 import host.kuro.kurobase.database.AreaData;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.markers.AreaMarker;
@@ -19,6 +21,7 @@ public class MainClass extends JavaPlugin {
 
     private MarkerAPI markerAPI;
     private MarkerSet markerSet;
+    private int hash;
 
     private BaseCustomMessage msg;
 
@@ -59,7 +62,8 @@ public class MainClass extends JavaPlugin {
         this.registerMarkerSet();
         this.updateMarkerSet();
 
-        KuroBase.GetProtect();
+        int interval = 20 * this.getConfig().getInt("markerset.check-interval"); // 20tick = 1 second
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this), interval, interval);
     }
 
     public int getRandomColor() {
@@ -80,9 +84,26 @@ public class MainClass extends JavaPlugin {
     }
 
     public void updateMarkerSet() {
+        updateMarkerSet(true);
+    }
+
+    public void updateMarkerSet(boolean force) {
         List<AreaData> list = KuroBase.GetProtect();
+
+        if (list.hashCode() == this.hash && !force) {
+            return;
+        }
+
+        this.hash = list.hashCode();
+
+        if (this.markerSet != null) {
+            this.markerSet.deleteMarkerSet();
+        }
+
+        this.registerMarkerSet();
+
         for (AreaData data : list) {
-            String world = "world"; // bad hack
+            String world = this.getConfig().getString("badhack.world"); // bad hack
             double[] x = new double[] {data.x1, data.x2};
             double[] z = new double[] {data.z1, data.z2};
 
