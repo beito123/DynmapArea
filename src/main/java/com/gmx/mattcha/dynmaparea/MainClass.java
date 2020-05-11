@@ -62,6 +62,7 @@ public class MainClass extends JavaPlugin {
         this.registerMarkerSet();
         this.updateMarkerSet();
 
+        // check change
         int interval = 20 * this.getConfig().getInt("markerset.check-interval"); // 20tick = 1 second
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this), interval, interval);
     }
@@ -104,17 +105,29 @@ public class MainClass extends JavaPlugin {
 
         for (AreaData data : list) {
             String world = this.getConfig().getString("badhack.world"); // bad hack
-            double[] x = new double[] {data.x1, data.x2};
-            double[] z = new double[] {data.z1, data.z2};
+            int minX = Math.min(data.x1, data.x2);
+            int minY = Math.min(data.y1, data.y2);
+            int minZ = Math.min(data.z1, data.z2);
+            int maxX = Math.max(data.x1, data.x2);
+            int maxY = Math.max(data.y1, data.y2);
+            int maxZ = Math.max(data.z1, data.z2);
+
+            double[] x = new double[] { // it can adjust by 1 pixel (no by 1 block!)
+                    minX, maxX + 1 // From top-left + 1 To bottom-right
+            };
+            double[] z = new double[] {
+                    minZ, maxZ + 1
+            };
 
             String label = data.owner + data.name;
 
             AreaMarker marker = this.markerSet.createAreaMarker(null, label, true, world, x, z, false);
-            marker.setRangeY(data.y1, data.y2);
+            marker.setRangeY(minY, maxY);
+
             if (this.msg.getMessage(MSG_DESCRIPTION).length() > 0) {
                 marker.setDescription(this.msg.getMessage(MSG_DESCRIPTION, data.name, data.owner,
-                        String.valueOf(data.x1), String.valueOf(data.y1), String.valueOf(data.z1),
-                        String.valueOf(data.x2), String.valueOf(data.y2), String.valueOf(data.z2)));
+                        String.valueOf(minX), String.valueOf(minY), String.valueOf(minZ),
+                        String.valueOf(maxX), String.valueOf(maxY), String.valueOf(maxZ)));
             }
 
             int color = this.getRandomColor();
