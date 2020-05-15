@@ -11,12 +11,14 @@ import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class MainClass extends JavaPlugin {
 
+    public static final int CONFIG_VERSION = 1;
     public static final String MSG_DESCRIPTION = "marker.description";
 
     private MarkerAPI markerAPI;
@@ -32,6 +34,16 @@ public class MainClass extends JavaPlugin {
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+
+        int ver = this.getConfig().getInt("version", 0);
+        if (ver < CONFIG_VERSION) {
+            File file = new File(this.getDataFolder(), "config.yml");
+            file.renameTo(new File(this.getDataFolder(), "config-old.yml"));
+            this.saveDefaultConfig();
+            this.reloadConfig();
+
+            this.getLogger().info("Updated config.yml. The old was renamed to config-old.yml");
+        }
 
         this.msg = new BaseCustomMessage();
         this.msg.setMessage(MSG_DESCRIPTION, this.getConfig().getString(MSG_DESCRIPTION));
@@ -91,7 +103,7 @@ public class MainClass extends JavaPlugin {
     public void updateMarkerSet(boolean force) {
         List<AreaData> list = KuroBase.GetProtect();
 
-        if (list.hashCode() == this.hash && !force) {
+        if (list.hashCode() == this.hash && !force) { // check whether it's changed
             return;
         }
 
@@ -104,7 +116,6 @@ public class MainClass extends JavaPlugin {
         this.registerMarkerSet();
 
         for (AreaData data : list) {
-            String world = this.getConfig().getString("badhack.world"); // bad hack
             int minX = Math.min(data.x1, data.x2);
             int minY = Math.min(data.y1, data.y2);
             int minZ = Math.min(data.z1, data.z2);
@@ -121,19 +132,17 @@ public class MainClass extends JavaPlugin {
 
             String label = data.owner + data.name;
 
-            AreaMarker marker = this.markerSet.createAreaMarker(null, label, true, world, x, z, false);
+            AreaMarker marker = this.markerSet.createAreaMarker(null, label, true, data.world, x, z, false);
             marker.setRangeY(minY, maxY);
 
-            if (this.msg.getMessage(MSG_DESCRIPTION).length() > 0) {
-                marker.setDescription(this.msg.getMessage(MSG_DESCRIPTION, data.name, data.owner,
-                        String.valueOf(minX), String.valueOf(minY), String.valueOf(minZ),
-                        String.valueOf(maxX), String.valueOf(maxY), String.valueOf(maxZ)));
-            }
+            marker.setDescription(this.msg.getMessage(MSG_DESCRIPTION, data.name, data.owner,
+                    String.valueOf(minX), String.valueOf(minY), String.valueOf(minZ),
+                    String.valueOf(maxX), String.valueOf(maxY), String.valueOf(maxZ), data.world));
 
             int color = this.getRandomColor();
 
-            marker.setLineStyle(2, 0.9, color);
-            marker.setFillStyle(0.4, color);
+            marker.setLineStyle(2, 0.9, color); // width, opacity(0 = transparent, 1 = opaque), color
+            marker.setFillStyle(0.4, color); // opacity(0 = transparent, 1 = opaque), color
         }
     }
 }

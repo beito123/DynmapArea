@@ -4,6 +4,7 @@ group 'com.gmx.mattcha'
 version '1.0.1'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 def out = project.hasProperty('out') ? project.out : './dist'
 
